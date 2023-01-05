@@ -55,7 +55,7 @@ On the cli, use the following command:
 
 ![image](https://user-images.githubusercontent.com/9823965/210695728-c4d35d51-a839-4c1a-958c-5d9a2ef66a43.png)
 
-### on the LCD
+### On the LCD
 
 At this moment there is print on your screen. To use the LCD, we want to deactivate the --virtual driver**:
 
