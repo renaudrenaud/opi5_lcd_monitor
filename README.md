@@ -47,6 +47,7 @@ install the requirements
 `pip install -r requirements.txt`
 
 **run it**
+
 `sudo python3 lcd_cpu.py`
 
 At this moment the code will print on your screen. To use the LCD, we want to deactivate the --virtual driver**:
