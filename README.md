@@ -6,7 +6,7 @@ LCD 1602 or 2004 are little screens using 16 characters on 2 lines or 20 on 4 li
 
 You can run the code:
 * from command line
-* from a container, maybe a bit overkill, but isolation, you know...
+* from a [container](https://hub.docker.com/repository/docker/renaudrenaud/opi5_lcd_monitor), maybe a bit overkill, but isolation, you know...
 
 ## I2C Protocol
 
@@ -76,7 +76,7 @@ You can try:
 ## Next steps
 
 Project is really at the begining. I want to:
-* prepare a container
+* [container](https://hub.docker.com/repository/docker/renaudrenaud/opi5_lcd_monitor) is not tested yet.
 * print on a 2004 LCD
 * fix the cpudisk function
 
