@@ -69,6 +69,7 @@ Working, but it's just the clock function! Ok, let's ask for **cpu info dipslay*
 
 You can try:
 * cpuonly
+* cpucore
 * cpuram
 * cpudisk
 

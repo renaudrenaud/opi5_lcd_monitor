@@ -28,7 +28,7 @@ class LCD16CPU:
     """
     def __init__(self): 
         
-        self.__version__ = "v0.1.0"
+        self.__version__ = "v0.2.0"
                 
         description = "LCD16CPU Monitor you Pi with a 16x2 LCD"
         
