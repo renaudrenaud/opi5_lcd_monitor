@@ -93,13 +93,32 @@ class LCD16CPU:
         """
         Print the 2 CPU usage lines
         """
+        cpus = psutil.cpu_freq(percpu=True)
         try:
-            self.lcd.lcd_display_string("CPU : " + str(psutil.cpu_percent()) +"% t:" +  
-                str(int(psutil.sensors_temperatures()["soc_thermal"][0][1])), 1)
+            self.lcd.lcd_display_string("CPU: " + str(psutil.cpu_percent()) +"% " +  
+                str(int(psutil.sensors_temperatures()["soc_thermal"][0][1])) + "°", 1)
         except:
-            self.lcd.lcd_display_string("CPU : " + str(psutil.cpu_percent()) +"% t:?", 1)
+            self.lcd.lcd_display_string("CPU: " + str(psutil.cpu_percent()) +"% t:?", 1)
         
-        self.lcd.lcd_display_string("freq: " + str(int(psutil.cpu_freq().current)), 2)
+        if int(psutil.cpu_freq().current)== 1:
+            self.lcd.lcd_display_string("f@ : " + str(int(psutil.cpu_freq().current * 10) / 10) + " c=" + str(len(cpus)), 2) 
+        else:
+            self.lcd.lcd_display_string("f@ : " + str(int(psutil.cpu_freq().current))+ " c=" + str(len(cpus)), 2)
+
+    
+    def cpu_core(self):
+        """
+        Print the CPU cores
+        """
+        self.cpu_usage()
+        sleep(2)
+        cpus = psutil.cpu_freq(percpu=True)
+        i = 0
+        for cpu in cpus:
+            self.lcd.lcd_display_string(str(i) + " f@" + str(cpu[0]) + " mx" + str(cpu[2]), 2)
+            i = i + 1
+            sleep(1)
+
 
     def cpu_ram(self):
         """
@@ -169,6 +188,8 @@ class LCD16CPU:
                     self.cpu_ram()
                 elif self.display_mode == "cpudisk":
                     self.cpu_disk()
+                elif self.display_mode == "cpucore":
+                    self.cpu_core()
                 else:
                     self.cpu_usage()
                     sleep(3)
