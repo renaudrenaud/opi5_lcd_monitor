@@ -98,7 +98,7 @@ Project is really at the begining. I want to:
 ## Acknoledgments
 
 * Thanks to **kprasadvnsi** for the [discord](https://discord.com/channels/934722269522059335/1040242609626554408) even is this guy does not want to create an idependant #orangepi-zero2 considering this is the same as the Orange Pi Zero
-* Thanks to [Armbian](https://www.armbian.com/)
+* Thanks to [Armbian](https://www.armbian.com/) - please note the code is running on the debian from Orange Pi.
 * LCD driver coming from https://github.com/sweetpi/python-i2c-lcd/blob/master/lcddriver.py
 
 
