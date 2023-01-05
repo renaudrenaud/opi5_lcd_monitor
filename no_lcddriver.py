@@ -4,6 +4,8 @@ NO LCD driver
 When you run the main app with -v=yes it means you don't have a LCD 
 driver installed. This is a stub to allow the app to run without it
 
+v1.1.0  2023-01-04  Added 4 lines support
+v1.0.0  2020-12-20  First version
 
 """
 from time import sleep
@@ -21,22 +23,31 @@ class lcd:
         Ouput
         - None
         """
-        self.__version__ = "v1.0.0"
+        self.__version__ = "v1.1.0"
         print("No lcd driver initialized!")
-        self.string1 = ""
-        self.string2 = ""
+        self.string1 = "                    "
+        self.string2 = "                    "
+        self.string3 = "                    "
+        self.string4 = "                    "
         self.columns = columns
         self.lines = lines
         sleep(0.2)
 
     def lcd_display_string(self, string, line):
-
+        
         if line == 1:
             self.string1 = (string + " " * self.columns)[: self.columns]
-        else:
+        elif line == 2:
             self.string2 = (string + " " * self.columns)[: self.columns]
+        elif line == 3:
+            self.string3 = (string + " " * self.columns)[: self.columns]
+        elif line == 4:
+            self.string4 = (string + " " * self.columns)[: self.columns]
 
-        print("\r", self.string1 + " --- " + self.string2, end="")
+        if self.lines == 2:
+            print("\r", self.string1 + " --- " + self.string2, end="")
+        elif self.lines == 4:
+            print("\r", self.string1 + " --- " + self.string2 + " --- " + self.string3 + " --- " + self.string4, end="")
 
     # clear lcd and set to home
     def lcd_clear(self):

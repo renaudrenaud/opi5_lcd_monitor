@@ -88,10 +88,10 @@ class lcd:
             except Exception as err:
                 print("Error LCD >" + str(err))
 
-        self.lcd_write(0x03)
-        self.lcd_write(0x03)
-        self.lcd_write(0x03)
-        self.lcd_write(0x02)
+        # self.lcd_write(0x03)
+        # self.lcd_write(0x03)
+        # self.lcd_write(0x03)
+        # self.lcd_write(0x03)
 
         self.lcd_write(LCD_FUNCTIONSET | LCD_2LINE | LCD_5x8DOTS | LCD_4BITMODE)
         self.lcd_write(LCD_DISPLAYCONTROL | LCD_DISPLAYON)
