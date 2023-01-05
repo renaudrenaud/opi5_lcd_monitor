@@ -45,7 +45,7 @@ go into the project folder
 install the requirements 
 `pip install -r requirements.txt`
 
-## run it
+## run it from the commande line
 
 ### On your screen
 
@@ -73,10 +73,24 @@ You can try:
 * cpudisk
 
 
+## run it as a container
+
+Install the [Container](https://hub.docker.com/repository/docker/renaudrenaud/opi5_lcd_monitor/general) with arm64 tag.
+
+**Define the ENV:**
+* LMS_VIRTUAL_LCD=no
+* LMS_DISPLAY_MODE=cpu
+
+**Map the device:**
+Please use "privileged" mode to gain access to the device.
+
+For the OPi5:
+/dev/i2c-1:/dev/i2c-1
+
+
 ## Next steps
 
 Project is really at the begining. I want to:
-* [container](https://hub.docker.com/repository/docker/renaudrenaud/opi5_lcd_monitor) is not tested yet.
 * print on a 2004 LCD
 * fix the cpudisk function
 
