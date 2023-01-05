@@ -6,7 +6,7 @@ LCD 1602 or 2004 are little screens using 16 characters on 2 lines or 20 on 4 li
 
 You can run the code:
 * from command line
-* from a container, maybe a bit overkill, but isolation, you know...
+* from a [container](https://hub.docker.com/repository/docker/renaudrenaud/opi5_lcd_monitor), maybe a bit overkill, but isolation, you know...
 
 ## I2C Protocol
 
@@ -45,7 +45,7 @@ go into the project folder
 install the requirements 
 `pip install -r requirements.txt`
 
-## run it
+## run it from the commande line
 
 ### On your screen
 
@@ -73,10 +73,24 @@ You can try:
 * cpudisk
 
 
+## run it as a container
+
+Install the [Container](https://hub.docker.com/repository/docker/renaudrenaud/opi5_lcd_monitor/general) with arm64 tag.
+
+**Define the ENV:**
+* LMS_VIRTUAL_LCD=no
+* LMS_DISPLAY_MODE=cpu
+
+**Map the device:**
+Please use "privileged" mode to gain access to the device.
+
+For the OPi5:
+/dev/i2c-1:/dev/i2c-1
+
+
 ## Next steps
 
 Project is really at the begining. I want to:
-* prepare a container
 * print on a 2004 LCD
 * fix the cpudisk function
 
@@ -84,6 +98,8 @@ Project is really at the begining. I want to:
 
 * Thanks to **kprasadvnsi** for the [discord](https://discord.com/channels/934722269522059335/1040242609626554408) even is this guy does not want to create an idependant #orangepi-zero2 considering this is the same as the Orange Pi Zero
 * Thanks to [Armbian](https://www.armbian.com/)
+* LCD driver coming from https://github.com/sweetpi/python-i2c-lcd/blob/master/lcddriver.py
+
 
 
 
