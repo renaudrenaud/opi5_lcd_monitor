@@ -83,9 +83,9 @@ class LCD16CPU:
             import lcddriver
             self.lcd = lcddriver.lcd(address = lcd, columns=16, i2c_port=i2c_port)
             self.lcd.lcd_clear()
-            self.lcd.lcd_display_string("      C&R ID ", 1)
-            self.lcd.lcd_display_string("    Audiofolies" , 2)
-            sleep(2)
+            self.lcd.lcd_display_string("    C&R ID ", 1)
+            self.lcd.lcd_display_string("  Audiofolies" , 2)
+            sleep(0.5)
 
     
 
@@ -96,7 +96,7 @@ class LCD16CPU:
         cpus = psutil.cpu_freq(percpu=True)
         try:
             self.lcd.lcd_display_string("CPU: " + str(psutil.cpu_percent()) +"% " +  
-                str(int(psutil.sensors_temperatures()["soc_thermal"][0][1])) + "°", 1)
+                str(int(psutil.sensors_temperatures()["soc_thermal"][0][1])) + "c", 1)
         except:
             self.lcd.lcd_display_string("CPU: " + str(psutil.cpu_percent()) +"% t:?", 1)
         
@@ -193,6 +193,7 @@ class LCD16CPU:
                 else:
                     self.cpu_usage()
                     sleep(3)
+                    self.cpu_core()
                     self.cpu_ram()
                     sleep(3)
                     self.cpu_disk()

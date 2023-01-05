@@ -59,13 +59,13 @@ On the cli, use the following command:
 
 At this moment there is print on your screen. To use the LCD, we want to deactivate the --virtual driver**:
 
-`sudo python3 lcd_cpu.py -v no`
+`sudo python3 lcd_cpu.py **-v no**`
 
 ### I want some monitoring info
 
-Working, but it's just the clock function! Ok, let's ask for **cpu info dipslay**:
+Working, but it's just the clock function! Ok, let's ask for **cpu info dipslay** using the -d parameter:
 
-`sudo python3 lcd_cpu.py -v no -d cpu`
+`sudo python3 lcd_cpu.py -v no **-d cpu**`
 
 You can try:
 * cpuonly
