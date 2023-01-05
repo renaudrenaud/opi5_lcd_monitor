@@ -12,7 +12,7 @@ You can run the code:
 
 I use the Debian CLI version from Orange Pi to run the Orange Pi 5 (OPi5). The I2C [protocol](https://en.wikipedia.org/wiki/I%C2%B2C) allows us to communicate with the backpack using only two cables. We need the data Pin and the clock Pin.
 
-## I2C Activation
+## I2C Activation and Pins
 
 * for the **OPi5** add this line in the file `/boot/orangepiEnv.txt`:
 
@@ -20,11 +20,48 @@ I use the Debian CLI version from Orange Pi to run the Orange Pi 5 (OPi5). The I
 
 * Usually with other cards you ave to use `orangepi-config` or `raspi-config` to activate I2C.
 
-## Libs
 
-The script in python is just some glue between components: 
-* The big thing is [psutils](https://pypi.org/project/psutil/) lib allowing to grab all the information we want from the computer (cpu, ram, disks...)
-* the lib from adafruit to manage easily the communication protocol.
+### For the OPi5 use:
+* pin 12 for data SDA
+* pin 15 for clock SCL
+
+
+
+## PSUTIL ?
+
+The script in python is just some glue between components.
+
+The real big thing is [psutils](https://pypi.org/project/psutil/). This lib allows to grab all the information we want from the computer (cpu, ram, disks...)
+
+## Usage
+
+### From the CLI
+
+grab the project from github
+`git clone https://github.com/renaudrenaud/opi5_lcd_monitor.git`
+
+go into the project folder
+`cd cd opi5_lcd_monitor`
+
+install the requirements 
+`pip install -r requirements.txt`
+
+**run it**
+`sudo python3 lcd_cpu.py`
+
+At this moment the code will print on your screen. To use the LCD, we want to deactivate the --virtual driver**:
+
+`sudo python3 lcd_cpu.py -v no`
+
+Working, but it's just the clock function! Ok, let's ask for **cpu info dipslay**:
+
+`sudo python3 lcd_cpu.py -v no -d`
+
+
+
+
+
+
 
 
 
