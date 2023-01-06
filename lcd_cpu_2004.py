@@ -3,6 +3,15 @@ Using I2C LCD 20*04 to show information
 Initially for the Orange Pi 5
 RC 2023-01-04
 
+2023-01-06 v0.3.0: seems ok for Orange Pi 5
+    cpuonly with cores information   
+    cpuram with RAM information
+    cpudisk with disk information, I still do not understand everything
+    cpucore with detailed cores information
+    cputemp temperature from sensors                   
+    cpusmooth cool nice display
+      
+2023-01-06 v0.3.0: more stuff
 2023-01-04 v0.1.0: let's start
 """
 
@@ -28,7 +37,7 @@ class LCD20CPU:
     """
     def __init__(self): 
         
-        self.__version__ = "v0.2.0"
+        self.__version__ = "v0.3.0"
                 
         description = "LCD20CPU Monitor you Pi with a 20x4 LCD"
         
@@ -93,6 +102,39 @@ class LCD20CPU:
         freqs = psutil.cpu_freq(percpu=True)
         self.nbcores = len(freqs)   # number of cores
 
+    
+    def cpu_smooth(self):
+        """
+        Not too much information
+        Easy to see
+        """
+
+        # The 2 first lines are for the clock
+        today = datetime.today()
+        self.lcd.lcd_display_string(today.strftime("Clock %d/%m/%Y"), 1)
+        self.lcd.lcd_display_string(today.strftime("Time  %H:%M:%S"), 2)
+        
+        # the 3rd line is for the CPU usage and temp
+        cpupct = psutil.cpu_percent()
+        cputemp = psutil.sensors_temperatures()["soc_thermal"][0][1]
+
+        alert = ""
+        if cputemp > 60:
+            alert = "!"
+
+        if cpupct > 10:
+            cpupct = int(cpupct)
+
+        self.lcd.lcd_display_string("CPU: " + str(cpupct) + "%" + "     " + str(int(cputemp)) + chr(223) + alert, 3)
+        
+        # the 4th line is for the bars
+                
+        self.lcd.lcd_display_string(chr(255) * int((cpupct / 10)) + chr(95) * (10 -(int(cpupct / 10))) + " "
+                            + chr(255) * int((cputemp / 10)) + chr(95) * (8 -(int(cputemp / 10))) + alert, 4) 
+
+
+        sleep(0.5)
+
     def cpu_usage(self):
         """
         Print the CPU usage lines
@@ -102,7 +144,7 @@ class LCD20CPU:
         CoN% __________ + freq (N= core number)
         TEMP __________
         """
-        
+        freqs = psutil.cpu_freq()
         i = 0
         for i in range(self.nbcores):   
             
@@ -276,6 +318,7 @@ class LCD20CPU:
     def main_loop(self):
         while True:
             if "cpu" in self.display_mode:
+
                 if self.display_mode == "cpuonly":
                     self.cpu_usage()
                 elif self.display_mode == "cpuram":
@@ -286,6 +329,8 @@ class LCD20CPU:
                     self.cpu_core()
                 elif self.display_mode == "cputemp":
                     self.cpu_temp()
+                elif self.display_mode == "cpusmooth":
+                    self.cpu_smooth()
                 else:
                     self.cpu_usage()
                     for i in range(3):
@@ -295,7 +340,7 @@ class LCD20CPU:
                     self.cpu_temp()
 
             else:
-                self.cpu_usage()
+                self.cpu_smooth()
                 sleep(.8)
 
 if __name__ == "__main__":
