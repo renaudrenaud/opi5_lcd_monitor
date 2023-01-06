@@ -90,29 +90,53 @@ class LCD20CPU:
         self.pct = 0    # CPU usage
         self.tmp = 0    # CPU temp
 
+        freqs = psutil.cpu_freq(percpu=True)
+        self.nbcores = len(freqs)   # number of cores
+
     def cpu_usage(self):
         """
         Print the CPU usage lines
         with bargraph for CPU & TEMP
         CLOCK %CPU
         TIME  °TMP
-        CPU% __________
+        CoN% __________ + freq (N= core number)
         TEMP __________
         """
-        self.clock()
         
-        # pct = psutil.cpu_percent()
-        # tmp = int(psutil.sensors_temperatures()["soc_thermal"][0][1])
-        freq = psutil.cpu_freq()
-        
-        self.lcd.lcd_display_string("CPU% " + chr(255) * int((self.pct / 10))  + chr(95) * (10 -(int(self.pct / 10))), 3) 
-        self.lcd.lcd_display_string("TMP" + chr(223) + " " + chr(255)  * round((self.tmp / 10))  + chr(95) * (10 -(round(self.tmp / 10))), 4)
-        
-        sleep(0.5)
+        i = 0
+        for i in range(self.nbcores):   
+            
+            self.clock()
+            cpup = self._cpup(i)
+            self.lcd.lcd_display_string("co" + str(i) + ">" + chr(255) * int((cpup / 10))  
+                        + chr(95) * (10 -(int(cpup / 10))) + "<f" 
+                        + str(int(self._cpuf(i))), 3) 
+            self.lcd.lcd_display_string("tmp>" + chr(255)  * round((self.tmp / 10)) 
+                        + chr(95) * (10 -(round(self.tmp / 10)))+"<", 4)
+            i = i + 1
+            sleep(0.5)
     
+    def _cpuf(self, i:int):
+        """
+        return the CPU frequency for core i
+        """
+
+        fcpu = psutil.cpu_freq(percpu=True)[i].current
+        return fcpu
+
+    def _cpup(self, i:int):
+        """
+        return the CPU % usage for core i
+        """
+        pcpu = psutil.cpu_percent(percpu=True)[i]
+        return pcpu
+
+
     def cpu_core(self):
         """
         Print the CPU Core usage lines
+        CLOCK %CPU
+        TIME  °TMP
         for each core
             - current Frequency / Min / Max frequency 
             - bargraph for %Usage and %usage
@@ -145,6 +169,8 @@ class LCD20CPU:
     def cpu_temp(self):
         """
         Print the different sensors temperature
+        it's a list of sensors with a current, high and critical temperature
+        depending on the psutil library
         """
         # self.clock()
 
@@ -218,12 +244,19 @@ class LCD20CPU:
                     "percent": percent
                 }
                 self.clock()
-                self.lcd.lcd_display_string("Disk " + str(nbdisk) + ": " + str(int(total)) + "G", 3)
-                self.lcd.lcd_display_string("part: " + device, 2)
-                sleep(2)
-                self.clock()
-                self.lcd.lcd_display_string("used: " + str(int(used )) + "G*" + str(percent) + "%", 4)
-                sleep(5)
+                for i in range(4):
+                    self.clock()
+                    self.lcd.lcd_display_string("Part " + str(nbdisk) + ": " + str(int(total)) + "G", 3)
+                    self.lcd.lcd_display_string("part: " + device, 4)
+                    sleep(0.5)
+                
+                for i in range(10):
+                # self.lcd.lcd_display_string("used: " + str(int(used )) + "G*" + str(percent) + "%", 4)
+                    self.clock()
+                    self.lcd.lcd_display_string("used>"  + chr(255) * int((used / 10)) 
+                                        + chr(95) * (10 -(int(used / 10))) +"<" + " " + str(round(percent,1)) + "%", 4) 
+            
+                    sleep(0.5)
 
 
     def clock(self):
@@ -255,15 +288,14 @@ class LCD20CPU:
                     self.cpu_temp()
                 else:
                     self.cpu_usage()
-                    sleep(3)
-                    self.cpu_core()
-                    self.cpu_ram()
-                    sleep(3)
+                    for i in range(3):
+                        self.cpu_ram()
                     self.cpu_disk()
+                    self.cpu_core()
+                    self.cpu_temp()
 
-                # sleep(.8)
             else:
-                self.clock()
+                self.cpu_usage()
                 sleep(.8)
 
 if __name__ == "__main__":
