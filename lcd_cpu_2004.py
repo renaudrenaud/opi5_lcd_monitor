@@ -116,7 +116,13 @@ class LCD20CPU:
         
         # the 3rd line is for the CPU usage and temp
         cpupct = psutil.cpu_percent()
-        cputemp = psutil.sensors_temperatures()["soc_thermal"][0][1]
+        try:
+            cputemp = psutil.sensors_temperatures()["cpu_thermal"][0][1] # was soc_thermal"
+        except:
+            cputemp = 10
+            # cputemp = psutil.sensors_temperatures()["cpu_thermal"][0][1]
+            print(str(psutil.sensors_temperatures()))
+            
 
         alert = ""
         if cputemp > 60:
@@ -295,8 +301,8 @@ class LCD20CPU:
                 for i in range(10):
                 # self.lcd.lcd_display_string("used: " + str(int(used )) + "G*" + str(percent) + "%", 4)
                     self.clock()
-                    self.lcd.lcd_display_string("used>"  + chr(255) * int((used / 10)) 
-                                        + chr(95) * (10 -(int(used / 10))) +"<" + " " + str(round(percent,1)) + "%", 4) 
+                    self.lcd.lcd_display_string("used>"  + chr(255) * int((percent / 10)) 
+                                        + chr(95) * (10 -(int(percent / 10))) +"<" + " " + str(round(percent,1)) + "%", 4) 
             
                     sleep(0.5)
 
@@ -305,9 +311,9 @@ class LCD20CPU:
         today = datetime.today()
         self.pct = psutil.cpu_percent()
         try:
-            self.tmp = int(psutil.sensors_temperatures()["soc_thermal"][0][1])
+            self.tmp = int(psutil.sensors_temperatures()["cpu_thermal"][0][1])
         except:
-            self.tmp = 0
+            self.tmp = 10
         
         if self.pct > 10:
             self.pct = int(self.pct)
