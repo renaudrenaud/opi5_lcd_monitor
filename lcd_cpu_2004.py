@@ -116,14 +116,8 @@ class LCD20CPU:
         
         # the 3rd line is for the CPU usage and temp
         cpupct = psutil.cpu_percent()
-        try:
-            cputemp = psutil.sensors_temperatures()["cpu_thermal"][0][1] # was soc_thermal"
-        except:
-            cputemp = 10
-            # cputemp = psutil.sensors_temperatures()["cpu_thermal"][0][1]
-            print(str(psutil.sensors_temperatures()))
-            
-
+        cputemp = self._cpu_thermal()
+        
         alert = ""
         if cputemp > 60:
             alert = "!"
@@ -138,8 +132,18 @@ class LCD20CPU:
         self.lcd.lcd_display_string(chr(255) * int((cpupct / 10)) + chr(95) * (10 -(int(cpupct / 10))) + " "
                             + chr(255) * int((cputemp / 10)) + chr(95) * (8 -(int(cputemp / 10))) + alert, 4) 
 
-
         sleep(0.5)
+
+    def _cpu_thermal(self):
+        """
+        Get the CPU temp
+        """
+        try:
+            tmp = psutil.sensors_temperatures()["cpu_thermal"][0][1] # was soc_thermal"
+        except:
+            # for the Orange Pi 5 we only have this right now, oterwise we can get core temp
+            tmp = psutil.sensors_temperatures()["soc_thermal"][0][1]
+        return tmp
 
     def cpu_usage(self):
         """
@@ -310,15 +314,12 @@ class LCD20CPU:
     def clock(self):
         today = datetime.today()
         self.pct = psutil.cpu_percent()
-        try:
-            self.tmp = int(psutil.sensors_temperatures()["cpu_thermal"][0][1])
-        except:
-            self.tmp = 10
+        self.tmp = self._cpu_thermal()
         
         if self.pct > 10:
             self.pct = int(self.pct)
         self.lcd.lcd_display_string(today.strftime("Clock %d/%m/%Y") + " " + str(self.pct)+ "%", 1)
-        self.lcd.lcd_display_string(today.strftime("Time  %H:%M:%S") + "   " + str(self.tmp) + chr(223), 2)
+        self.lcd.lcd_display_string(today.strftime("Time  %H:%M:%S") + "   " + str(round(self.tmp)) + chr(223), 2)
         # sleep(.8)
     
     def main_loop(self):
