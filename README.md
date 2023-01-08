@@ -21,9 +21,13 @@ I use the Debian CLI version from Orange Pi to run the Orange Pi 5 (OPi5). The I
 * Usually with other cards you ave to use `orangepi-config` or `raspi-config` to activate I2C.
 
 
-### For the OPi5 use:
-* pin 12 for data SDA
-* pin 15 for clock SCL
+### GPIO Pins
+* OPi5 use
+  * pin 12 for data SDA
+  * pin 15 for clock SCL
+* Rapsberry Pi 400
+  * pin 3 for SDA - GPIO #8 SDA1 I2C
+  * pin 5 for SCL - GPIO #7 SCL1 I2C
 
 
 
@@ -72,6 +76,8 @@ You can try:
 * cpucore
 * cpuram
 * cpudisk
+* cpu
+* cpusmooth
 
 
 ## run it as a container
@@ -89,10 +95,18 @@ For the OPi5:
 /dev/i2c-1:/dev/i2c-1
 
 
+## Tested with
+
+* Orange Pi 5 
+  * `/dev/i2c-1`
+  * `sudo python3 lcd_cpu_2004.py -v no -d cpusmooth`
+* Orange Pi Zero 2 
+  * `/dev/i2c-3`
+  * `sudo python3 lcd_cpu_2004.py -v no -i 3 -d cpu`
+
 ## Next steps
 
 Project is really at the begining. I want to:
-* print on a 2004 LCD
 * fix the cpudisk function
 
 ## Acknoledgments
@@ -100,10 +114,3 @@ Project is really at the begining. I want to:
 * Thanks to **kprasadvnsi** for the [discord](https://discord.com/channels/934722269522059335/1040242609626554408) even is this guy does not want to create an idependant #orangepi-zero2 considering this is the same as the Orange Pi Zero
 * Thanks to [Armbian](https://www.armbian.com/) - please note the code is running on the debian from Orange Pi.
 * LCD driver coming from https://github.com/sweetpi/python-i2c-lcd/blob/master/lcddriver.py
-
-
-
-
-
-
-
