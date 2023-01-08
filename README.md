@@ -72,6 +72,8 @@ You can try:
 * cpucore
 * cpuram
 * cpudisk
+* cpu
+* cpusmooth
 
 
 ## run it as a container
@@ -91,8 +93,12 @@ For the OPi5:
 
 ## Tested with
 
-* Orange Pi 5 /dev/i2c-1
-* Orange Pi Zero 2 /dev/i2c-3
+* Orange Pi 5 
+  * `/dev/i2c-1`
+  * `sudo python3 lcd_cpu_2004.py -v no -d cpusmooth`
+* Orange Pi Zero 2 
+  * `/dev/i2c-3`
+  * `sudo python3 lcd_cpu_2004.py -v no -i 3 -d cpu`
 
 ## Next steps
 
@@ -104,10 +110,3 @@ Project is really at the begining. I want to:
 * Thanks to **kprasadvnsi** for the [discord](https://discord.com/channels/934722269522059335/1040242609626554408) even is this guy does not want to create an idependant #orangepi-zero2 considering this is the same as the Orange Pi Zero
 * Thanks to [Armbian](https://www.armbian.com/) - please note the code is running on the debian from Orange Pi.
 * LCD driver coming from https://github.com/sweetpi/python-i2c-lcd/blob/master/lcddriver.py
-
-
-
-
-
-
-
