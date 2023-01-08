@@ -21,9 +21,13 @@ I use the Debian CLI version from Orange Pi to run the Orange Pi 5 (OPi5). The I
 * Usually with other cards you ave to use `orangepi-config` or `raspi-config` to activate I2C.
 
 
-### For the OPi5 use:
-* pin 12 for data SDA
-* pin 15 for clock SCL
+### GPIO Pins
+* OPi5 use
+  * pin 12 for data SDA
+  * pin 15 for clock SCL
+* Rapsberry Pi 400
+  * pin 3 for SDA - GPIO #8 SDA1 I2C
+  * pin 5 for SCL - GPIO #7 SCL1 I2C
 
 
 
