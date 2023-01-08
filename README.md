@@ -89,10 +89,14 @@ For the OPi5:
 /dev/i2c-1:/dev/i2c-1
 
 
+## Tested with
+
+* Orange Pi 5 /dev/i2c-1
+* Orange Pi Zero 2 /dev/i2c-3
+
 ## Next steps
 
 Project is really at the begining. I want to:
-* print on a 2004 LCD
 * fix the cpudisk function
 
 ## Acknoledgments
