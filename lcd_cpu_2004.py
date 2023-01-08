@@ -3,6 +3,7 @@ Using I2C LCD 20*04 to show information
 Initially for the Orange Pi 5
 RC 2023-01-04
 
+2023-01-07 v0.4.0: Orange Pi 5 and Orange Pi Zero 2 ok
 2023-01-06 v0.3.0: seems ok for Orange Pi 5
     cpuonly with cores information   
     cpuram with RAM information
@@ -37,10 +38,8 @@ class LCD20CPU:
     """
     def __init__(self): 
         
-        self.__version__ = "v0.3.0"
-                
+        self.__version__ = "v0.4.0"
         description = "LCD20CPU Monitor you Pi with a 20x4 LCD"
-        
         lcd_help = "LCD address something like 0x3f"
         i2c_help = "i2cdetect port, 0 or 1, 0 for Orange Pi Zero, 1 for Rasp > V2 or OPi5"
         virtual_lcd_help = "yes or no, yes means no LCD, just print on screen"
