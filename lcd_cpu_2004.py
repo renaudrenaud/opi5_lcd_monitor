@@ -49,7 +49,7 @@ class LCD20CPU:
         parser.add_argument("-l","--lcd", type=lambda x: int(x, 0), default=0x3f, help = lcd_help)
         parser.add_argument("-i","--i2c_port", type=int, default=1, help = i2c_help)
         parser.add_argument("-v","--virtual_lcd", type=str, default="yes", help = virtual_lcd_help)
-        parser.add_argument("-d","--display_mode", type=str, default="", help = display_mode_help)
+        parser.add_argument("-d","--display_mode", type=str, default="cpuonly", help = display_mode_help)
 
         
         try:
@@ -67,7 +67,6 @@ class LCD20CPU:
         if os.getenv('LMS_DISPLAY_MODE') is not None:
             args.display_mode = os.environ['LMS_DISPLAY_MODE'] 
         
-        self.display_mode = args.display_mode
         lcd = args.lcd
         i2c_port  = args.i2c_port
         virtual_lcd = args.virtual_lcd
@@ -98,9 +97,8 @@ class LCD20CPU:
         self.pct = 0    # CPU usage
         self.tmp = 0    # CPU temp
 
-        freqs = psutil.cpu_freq(percpu=True)
-        self.nbcores = len(freqs)   # number of cores
-
+        self.nbcores = len(psutil.Process().cpu_affinity()) # number of cores
+        print("core number is " + str(self.nbcores)) 
     
     def cpu_smooth(self):
         """
@@ -144,9 +142,9 @@ class LCD20CPU:
             tmp = psutil.sensors_temperatures()["soc_thermal"][0][1]
         return tmp
 
-    def cpu_usage(self):
+    def cpu_only(self):
         """
-        Print the CPU usage lines
+        Print the CPU ONLY usage lines
         with bargraph for CPU & TEMP
         CLOCK %CPU
         TIME  °TMP
@@ -215,7 +213,7 @@ class LCD20CPU:
                                         + chr(95) * (10 -(int(pct / 10))) +"<" + " " + str(round(pct,1)) + "%", 4) 
             
             i = i + 1
-            sleep(0.5)
+            sleep(1)
 
     def cpu_temp(self):
         """
@@ -326,7 +324,7 @@ class LCD20CPU:
             if "cpu" in self.display_mode:
 
                 if self.display_mode == "cpuonly":
-                    self.cpu_usage()
+                    self.cpu_only()
                 elif self.display_mode == "cpuram":
                     self.cpu_ram()
                 elif self.display_mode == "cpudisk":
@@ -338,7 +336,7 @@ class LCD20CPU:
                 elif self.display_mode == "cpusmooth":
                     self.cpu_smooth()
                 else:
-                    self.cpu_usage()
+                    self.cpu_only()
                     for i in range(3):
                         self.cpu_ram()
                     self.cpu_disk()
