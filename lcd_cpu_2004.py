@@ -146,22 +146,37 @@ class LCD20CPU:
         """
         Print the CPU ONLY usage lines
         with bargraph for CPU & TEMP
-        CLOCK %CPU
-        TIME  °TMP
-        CoN% __________ + freq (N= core number)
-        TEMP __________
+
         """
         freqs = psutil.cpu_freq()
+        if freqs[0] > 10:
+            freqcpu = int(freqs[0])
+        else:
+            freqcpu = freqs[0]
+        
         i = 0
         for i in range(self.nbcores):   
-            
             self.clock()
+            cputemp = self._cpu_thermal()
+            cpupct = psutil.cpu_percent()
+            
+            alert = ""
+            if cputemp > 60:
+                alert = "!"
+
+            
             cpup = self._cpup(i)
-            self.lcd.lcd_display_string("co" + str(i) + ">" + chr(255) * int((cpup / 10))  
-                        + chr(95) * (10 -(int(cpup / 10))) + "<f" 
-                        + str(int(self._cpuf(i))), 3) 
-            self.lcd.lcd_display_string("tmp>" + chr(255)  * round((self.tmp / 10)) 
-                        + chr(95) * (10 -(round(self.tmp / 10)))+"<", 4)
+            self.lcd.lcd_display_string("co" + str(i) + " %" + str(cpup) + " f" + str(int(self._cpuf(i))), 3) 
+                            
+            self.lcd.lcd_display_string(chr(255) * int((cpupct / 10)) + chr(95) * (10 -(int(cpupct / 10))) + " "
+                            + chr(255) * int((cputemp / 10)) + chr(95) * (8 -(int(cputemp / 10))) + alert, 4) 
+                                 
+            
+            #self.lcd.lcd_display_string("co" + str(i) + ">" + chr(255) * int((cpup / 10))  
+            #            + chr(95) * (10 -(int(cpup / 10))) + "<f" 
+            #            + str(int(self._cpuf(i))), 3) 
+            #self.lcd.lcd_display_string("tmp>" + chr(255)  * round((self.tmp / 10)) 
+            #            + chr(95) * (10 -(round(self.tmp / 10)))+"<" + str(freqcpu), 4)
             i = i + 1
             sleep(0.5)
     
@@ -207,7 +222,7 @@ class LCD20CPU:
             else:
                 pct = round(pcpu)
             
-            self.lcd.lcd_display_string("CuMiMx " + str(round(fcpu.current)) + "/" + str(round(fcpu.min)) + "/" + str(round(fcpu.max)), 3)
+            self.lcd.lcd_display_string("Cu-+" + str(round(fcpu.current)) + "-" + str(round(fcpu.min)) + "+" + str(round(fcpu.max)), 3)
 
             self.lcd.lcd_display_string("C" + str(i) + ">" + chr(255) * int((pct / 10)) 
                                         + chr(95) * (10 -(int(pct / 10))) +"<" + " " + str(round(pct,1)) + "%", 4) 
