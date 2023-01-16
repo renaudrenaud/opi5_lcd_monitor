@@ -3,6 +3,7 @@ Using I2C LCD 20*04 to show information
 Initially for the Orange Pi 5
 RC 2023-01-04
 
+2023-01-16 v0.4.2: Change the RAM display total & used where inverted!
 2023-01-07 v0.4.1: Some few corrections
 2023-01-07 v0.4.0: Orange Pi 5 and Orange Pi Zero 2 ok
 2023-01-06 v0.3.0: seems ok for Orange Pi 5
