@@ -80,6 +80,21 @@ You can try:
 * cpusmooth
 
 
+**cpudu**
+For Disk Usage
+* line 3 shows user / total / pct for the root "/"
+* line 4 shows user / total / pct for the -m mount drive
+
+`sudo python3 lcd_cpu_2004.py -v no -d cpudu -m /mnt/opz2`
+
+![image](https://user-images.githubusercontent.com/9823965/212914621-ef2149e8-2273-4a53-8d20-f5c0f5b67146.png)
+
+
+
+
+
+
+
 ## run it as a container
 
 Install the [Container](https://hub.docker.com/repository/docker/renaudrenaud/opi5_lcd_monitor/general) with arm64 tag.
