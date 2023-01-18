@@ -3,6 +3,7 @@ Using I2C LCD 20*04 to show information
 Initially for the Orange Pi 5
 RC 2023-01-04
 
+2023-01-16 v0.5.0: "cpubars" and "cpudu" for disk usage added
 2023-01-16 v0.4.2: Change the RAM display total & used where inverted!
 2023-01-07 v0.4.1: Some few corrections
 2023-01-07 v0.4.0: Orange Pi 5 and Orange Pi Zero 2 ok
@@ -16,6 +17,11 @@ RC 2023-01-04
       
 2023-01-06 v0.3.0: more stuff
 2023-01-04 v0.1.0: let's start
+
+
+Found a huge help here: 
+    https://docs.wokwi.com/parts/wokwi-lcd2004
+
 """
 
 import sys
@@ -45,14 +51,15 @@ class LCD20CPU:
         lcd_help = "LCD address something like 0x3f"
         i2c_help = "i2cdetect port, 0 or 1, 0 for Orange Pi Zero, 1 for Rasp > V2 or OPi5"
         virtual_lcd_help = "yes or no, yes means no LCD, just print on screen"
-        display_mode_help = "set cpu or cpuram or cpudisk or clock"
+        display_mode_help = "set the display mode ie cpusmooth cpuram cpudisk cpucore cputemp cpuonly"
+        mount_path_help = "set the path to the mounted media ie: /media/usb0"
         
         parser = argparse.ArgumentParser(description = description)
         parser.add_argument("-l","--lcd", type=lambda x: int(x, 0), default=0x3f, help = lcd_help)
         parser.add_argument("-i","--i2c_port", type=int, default=1, help = i2c_help)
         parser.add_argument("-v","--virtual_lcd", type=str, default="yes", help = virtual_lcd_help)
         parser.add_argument("-d","--display_mode", type=str, default="cpuonly", help = display_mode_help)
-
+        parser.add_argument("-m","--mount_path", type=str, default="", help = mount_path_help)
         
         try:
             args = parser.parse_args()
@@ -68,11 +75,14 @@ class LCD20CPU:
             args.virtual_lcd = os.environ['LMS_VIRTUAL_LCD']
         if os.getenv('LMS_DISPLAY_MODE') is not None:
             args.display_mode = os.environ['LMS_DISPLAY_MODE'] 
+        if os.getenv('LMS_MOUNT_PATH') is not None:
+            args.mount_path = os.environ['LMS_MOUNT_PATH'] 
         
         lcd = args.lcd
         i2c_port  = args.i2c_port
         virtual_lcd = args.virtual_lcd
         self.display_mode = args.display_mode
+        self.mount_path = args.mount_path
 
         print("-------------------------------")
         print("LCD20CPU class " + self.__version__ + " started!")
@@ -102,6 +112,47 @@ class LCD20CPU:
         self.nbcores = len(psutil.Process().cpu_affinity()) # number of cores
         print("core number is " + str(self.nbcores)) 
     
+    
+    def cpu_bars(self):
+        """
+        bargraph for 
+        CPU usage
+        RAM usage
+        Temperature
+        """
+        # first lines for time
+
+        today = datetime.today()
+        self.lcd.lcd_display_string(today.strftime("Time  %H:%M:%S"), 1)
+
+        # CPU / TEMP 
+        cpupct = psutil.cpu_percent()
+        cputemp = self._cpu_thermal()
+        
+        alert = ""
+        if cputemp > 60:
+            alert = "!"
+
+        if cpupct >= 10:
+            cpupct = int(cpupct)
+
+        self.lcd.lcd_display_string("CPU :" + chr(255) * int((cpupct / 10)) + chr(95) * (10 -(int(cpupct / 10))) + " " + str(cpupct) + "%", 2)
+        
+        # line 3 RAM % 
+        total = int(psutil.virtual_memory().total / 1024 / 1024)
+        avail = int(psutil.virtual_memory().available / 1024 / 1024)
+        used = int(psutil.virtual_memory().used / 1024 / 1024)
+        pct = round((total - avail) / total * 100,1)
+        ramdisplay = "RAM:" + str(used) + "M/" + str(total) + "M"
+        self.lcd.lcd_display_string("RAM :" + chr(255) * int((pct / 10))  + chr(95) * (10 -(int(pct / 10))) + " " + str(int(pct)) + "%", 3) 
+
+        # line 4 TEMP
+        self.lcd.lcd_display_string("TEMP:" + chr(255) * int((cputemp / 10)) + chr(95) * (10 -(int(cputemp / 10))) 
+        + " " + str(int(cputemp)) + chr(223) + alert, 4) 
+
+        sleep(0.5)
+
+    
     def cpu_smooth(self):
         """
         Not too much information
@@ -126,10 +177,9 @@ class LCD20CPU:
 
         self.lcd.lcd_display_string("CPU: " + str(cpupct) + "%" + "     " + str(int(cputemp)) + chr(223) + alert, 3)
         
-        # the 4th line is for the bars
-                
-        self.lcd.lcd_display_string(chr(255) * int((cpupct / 10)) + chr(95) * (10 -(int(cpupct / 10))) + " "
-                            + chr(255) * int((cputemp / 10)) + chr(95) * (8 -(int(cputemp / 10))) + alert, 4) 
+        # the 4th line is for the bars   
+        self.lcd.lcd_display_string(chr(255) * int(((cpupct + 5) / 10)) + chr(95) * (10 -(int((cpupct + 5) / 10))) 
+                            + chr(255) * int(((cputemp +5 ) / 10)) + chr(95) * (10 -(int((cputemp + 5) / 10))) + alert, 4) 
 
         sleep(0.5)
 
@@ -155,32 +205,44 @@ class LCD20CPU:
             freqcpu = int(freqs[0])
         else:
             freqcpu = freqs[0]
+
         
-        i = 0
-        for i in range(self.nbcores):   
+        if datetime.today().second > 20:
             self.clock()
             cputemp = self._cpu_thermal()
             cpupct = psutil.cpu_percent()
-            
             alert = ""
             if cputemp > 60:
                 alert = "!"
+            
+            tp = ([(p.pid, p.info['name'], sum(p.info['cpu_times'])) for p in sorted(psutil.process_iter(['name', 'cpu_times']), key=lambda p: sum(p.info['cpu_times'][:2]))][-3:])        
+            self.lcd.lcd_display_string(str(tp[0][1])[:6] + " " + str(tp[1][1])[:6] + " " + str(tp[2][1])[:6], 3)
+            
+            self.lcd.lcd_display_string(chr(255) * int((cpupct / 10)) + chr(95) * (10 -(int(cpupct / 10)))
+                                + chr(255) * int((cputemp / 10)) + chr(95) * (10 -(int(cputemp / 10))) + alert, 4) 
+            
 
-            
-            cpup = self._cpup(i)
-            self.lcd.lcd_display_string("co" + str(i) + " %" + str(cpup) + " f" + str(int(self._cpuf(i))), 3) 
-                            
-            self.lcd.lcd_display_string(chr(255) * int((cpupct / 10)) + chr(95) * (10 -(int(cpupct / 10))) + " "
-                            + chr(255) * int((cputemp / 10)) + chr(95) * (8 -(int(cputemp / 10))) + alert, 4) 
-                                 
-            
-            #self.lcd.lcd_display_string("co" + str(i) + ">" + chr(255) * int((cpup / 10))  
-            #            + chr(95) * (10 -(int(cpup / 10))) + "<f" 
-            #            + str(int(self._cpuf(i))), 3) 
-            #self.lcd.lcd_display_string("tmp>" + chr(255)  * round((self.tmp / 10)) 
-            #            + chr(95) * (10 -(round(self.tmp / 10)))+"<" + str(freqcpu), 4)
-            i = i + 1
             sleep(0.5)
+        else:        
+            i = 0
+            for i in range(self.nbcores):   
+                self.clock()
+                cputemp = self._cpu_thermal()
+                cpupct = psutil.cpu_percent()
+                
+                alert = ""
+                if cputemp > 60:
+                    alert = "!"
+
+                
+                cpup = self._cpup(i)
+                self.lcd.lcd_display_string("co" + str(i) + " %" + str(cpup) + " f" + str(int(self._cpuf(i))), 3) 
+                                
+                self.lcd.lcd_display_string(chr(255) * int((cpupct / 10)) + chr(95) * (10 -(int(cpupct / 10))) 
+                                + chr(255) * int((cputemp / 10)) + chr(95) * (10 -(round(cputemp / 10))) + alert, 4) 
+                                        
+                i = i + 1
+                sleep(0.5)
     
     def _cpuf(self, i:int):
         """
@@ -263,21 +325,58 @@ class LCD20CPU:
         Print the 2 RAM usage lines
         """
         self.clock()
-        # print("total " + str(psutil.virtual_memory().total / 1024 / 1024))
-        # print("avail " + str(psutil.virtual_memory().available / 1024 / 1024))
         total = int(psutil.virtual_memory().total / 1024 / 1024)
         avail = int(psutil.virtual_memory().available / 1024 / 1024)
         used = int(psutil.virtual_memory().used / 1024 / 1024)
-        pct = round((total - avail) / total * 100,1)
-        # print("pct " + str(round(pct,1)))
-        self.lcd.lcd_display_string("RAM: " + str(used)
-                                    + "/" + str(total) + " " + str(pct) + "%" , 3)
-        # self.lcd.lcd_display_string("use " + str(int(psutil.virtual_memory().used / 1024 / 1024)) 
-        # + "Mo " + str(round(pct,1)) + "%" , 4)
+        pct = round((total - avail) / total * 100)
+
+        totals = ("{:5}".format(round(total)))
+        useds = ("{:5}".format(round(used)))
+        pcts = ("{:2}".format(round(pct))) + "%"
+        
+        self.lcd.lcd_display_string("RAM: " + useds + "/" + totals + " " + pcts, 3)
         self.lcd.lcd_display_string(chr(255) * int((pct / 5) + 1)  + chr(95) * (20 -(int(pct / 5))), 4) 
                         
         sleep(0.5)
 
+    def cpu_du(self):
+        """
+        
+        """
+        self.clock()
+
+        # At least print the root disk usage
+        du = psutil.disk_usage('/')
+
+        free = du.free / 1024 / 1024 / 1024
+        total = du.total / 1024 / 1024 / 1024
+        used = du.used / 1024 / 1024 / 1024
+        pct = round(du.percent)
+
+        useds = ("{:5}".format(round(used)))
+        totals = ("{:5}".format(round(total)))
+        pcts = " " + ("{:2}".format(round(pct))) + "%"
+
+        self.lcd.lcd_display_string("/ :" + useds + " /" + totals + " " + pcts, 3)        
+
+        # Try to print the defined LMS_MOUNT_PATH
+        if self.mount_path is not None:
+            try:
+                du = psutil.disk_usage(self.mount_path)
+                free = du.free / 1024 / 1024 / 1024
+                total = du.total / 1024 / 1024 / 1024
+                used = du.used / 1024 / 1024 / 1024
+                pct = round(du.percent)
+
+                useds = ("{:5}".format(round(used)))
+                totals = ("{:5}".format(round(total)))
+                pcts = " " + ("{:2}".format(round(pct))) + "%"
+                self.lcd.lcd_display_string("Mu:" + useds + " /" + totals + " " + pcts, 4)
+            except:
+                self.lcd.lcd_display_string("Err ? " + self.mount_path[:15] , 4)        
+
+        sleep(0.5)
+    
     def cpu_disk(self):
         """
         Print disks info
@@ -352,6 +451,10 @@ class LCD20CPU:
                     self.cpu_temp()
                 elif self.display_mode == "cpusmooth":
                     self.cpu_smooth()
+                elif self.display_mode == "cpubars":
+                    self.cpu_bars()
+                elif self.display_mode == "cpudu":
+                    self.cpu_du()
                 else:
                     self.cpu_only()
                     for i in range(3):
