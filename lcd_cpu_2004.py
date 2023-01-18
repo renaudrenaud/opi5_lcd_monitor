@@ -3,7 +3,7 @@ Using I2C LCD 20*04 to show information
 Initially for the Orange Pi 5
 RC 2023-01-04
 
-2023-01-16 v0.5.0: "cpubars" and "cpudu" for disk usage added
+2023-01-17 v0.5.0: "cpubars" and "cpudu" for disk usage added
 2023-01-16 v0.4.2: Change the RAM display total & used where inverted!
 2023-01-07 v0.4.1: Some few corrections
 2023-01-07 v0.4.0: Orange Pi 5 and Orange Pi Zero 2 ok
@@ -46,7 +46,7 @@ class LCD20CPU:
     """
     def __init__(self): 
         
-        self.__version__ = "v0.4.2"
+        self.__version__ = "v0.5.0"
         description = "LCD20CPU Monitor you Pi with a 20x4 LCD"
         lcd_help = "LCD address something like 0x3f"
         i2c_help = "i2cdetect port, 0 or 1, 0 for Orange Pi Zero, 1 for Rasp > V2 or OPi5"
