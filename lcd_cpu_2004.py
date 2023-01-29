@@ -1,8 +1,11 @@
 """
+From: https://github.com/renaudrenaud/opi5_lcd_monitor
+
 Using I2C LCD 20*04 to show information
 Initially for the Orange Pi 5
 RC 2023-01-04
 
+2023-01-29 v0.6.0: time_zone_2 added to print local time and time_zone_2
 2023-01-17 v0.5.0: "cpubars" and "cpudu" for disk usage added
 2023-01-16 v0.4.2: Change the RAM display total & used where inverted!
 2023-01-07 v0.4.1: Some few corrections
@@ -22,11 +25,20 @@ RC 2023-01-04
 Found a huge help here: 
     https://docs.wokwi.com/parts/wokwi-lcd2004
 
+Envvars:
+TZ=Asia/Shanghai
+LMS_DISPLAY_MODE=cpubars
+LMS_VIRTUAL_LCD=no
+
+Device:
+opz2: /dev/i2c-3
 """
 
 import sys
 import os
 import argparse
+import pytz
+
 from datetime import datetime
 from datetime import timedelta
 from time import sleep
@@ -46,12 +58,13 @@ class LCD20CPU:
     """
     def __init__(self): 
         
-        self.__version__ = "v0.5.0"
+        self.__version__ = "v0.6.0"
         description = "LCD20CPU Monitor you Pi with a 20x4 LCD"
         lcd_help = "LCD address something like 0x3f"
         i2c_help = "i2cdetect port, 0 or 1, 0 for Orange Pi Zero, 1 for Rasp > V2 or OPi5"
         virtual_lcd_help = "yes or no, yes means no LCD, just print on screen"
         display_mode_help = "set the display mode ie cpusmooth cpuram cpudisk cpucore cputemp cpuonly"
+        time_zone_2_help = "set the display mode clock with local time zone AND time_zone_2"
         mount_path_help = "set the path to the mounted media ie: /media/usb0"
         
         parser = argparse.ArgumentParser(description = description)
@@ -59,6 +72,7 @@ class LCD20CPU:
         parser.add_argument("-i","--i2c_port", type=int, default=1, help = i2c_help)
         parser.add_argument("-v","--virtual_lcd", type=str, default="yes", help = virtual_lcd_help)
         parser.add_argument("-d","--display_mode", type=str, default="cpuonly", help = display_mode_help)
+        parser.add_argument("-t","--time_zone_2", type=str, default="Europe/Paris", help = time_zone_2_help)
         parser.add_argument("-m","--mount_path", type=str, default="", help = mount_path_help)
         
         try:
@@ -77,12 +91,15 @@ class LCD20CPU:
             args.display_mode = os.environ['LMS_DISPLAY_MODE'] 
         if os.getenv('LMS_MOUNT_PATH') is not None:
             args.mount_path = os.environ['LMS_MOUNT_PATH'] 
+        if os.getenv('TIME_ZONE_2') is not None:
+            args.time_zone_2 = os.environ['TIME_ZONE_2'] 
         
         lcd = args.lcd
         i2c_port  = args.i2c_port
         virtual_lcd = args.virtual_lcd
         self.display_mode = args.display_mode
         self.mount_path = args.mount_path
+        self.time_zone_2 = args.time_zone_2
 
         print("-------------------------------")
         print("LCD20CPU class " + self.__version__ + " started!")
@@ -160,9 +177,18 @@ class LCD20CPU:
         """
 
         # The 2 first lines are for the clock
+        # we do not use self.clock because we do not want the % cpu and temp
         today = datetime.today()
-        self.lcd.lcd_display_string(today.strftime("Clock %d/%m/%Y"), 1)
-        self.lcd.lcd_display_string(today.strftime("Time  %H:%M:%S"), 2)
+        if self.time_zone_2 is not None:
+            # When timzeone is set, we display the local time and the time in the other timezone
+            tz2 = pytz.timezone(self.time_zone_2)
+            nowtz2 = datetime.now(tz2)
+            city = "{:8}".format(self.time_zone_2.split("/")[1])[:8]
+            self.lcd.lcd_display_string(today.strftime("Local    %H:%M:%S"), 1)
+            self.lcd.lcd_display_string(nowtz2.strftime(city + " %H:%M:%S"), 2)
+        else:
+            self.lcd.lcd_display_string(today.strftime("Clock %d/%m/%Y"), 1)
+            self.lcd.lcd_display_string(today.strftime("Time  %H:%M:%S"), 2)
         
         # the 3rd line is for the CPU usage and temp
         cpupct = psutil.cpu_percent()
@@ -431,8 +457,14 @@ class LCD20CPU:
         
         if self.pct > 10:
             self.pct = int(self.pct)
-        self.lcd.lcd_display_string(today.strftime("Clock %d/%m/%Y") + " " + str(self.pct)+ "%", 1)
-        self.lcd.lcd_display_string(today.strftime("Time  %H:%M:%S") + "   " + str(round(self.tmp)) + chr(223), 2)
+        if self.time_zone_2 is not None:
+            tz2 = pytz.timezone(self.time_zone_2)
+            nowtz2 = datetime.now(tz2)
+            self.lcd.lcd_display_string(today.strftime("Local %H:%M:%S") + "   " + str(round(self.tmp)) + chr(223), 1)
+            self.lcd.lcd_display_string(nowtz2.strftime(self.time_zone_2.split("/")[1][:5] + " %H:%M:%S") + " " + str(self.pct)+ "%", 2)
+        else:
+            self.lcd.lcd_display_string(today.strftime("Clock %d/%m/%Y") + " " + str(self.pct)+ "%", 1)
+            self.lcd.lcd_display_string(today.strftime("Time  %H:%M:%S") + "   " + str(round(self.tmp)) + chr(223), 2)
         # sleep(.8)
     
     def main_loop(self):
