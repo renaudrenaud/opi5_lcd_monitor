@@ -5,6 +5,7 @@ Using I2C LCD 20*04 to show information
 Initially for the Orange Pi 5
 RC 2023-01-04
 
+2023-02-08 v0.6.1: more info printed when launching
 2023-01-29 v0.6.0: time_zone_2 added to print local time and time_zone_2
 2023-01-17 v0.5.0: "cpubars" and "cpudu" for disk usage added
 2023-01-16 v0.4.2: Change the RAM display total & used where inverted!
@@ -108,8 +109,14 @@ class LCD20CPU:
         print("i2c_port    : " + str(i2c_port))
         print("virtual_lcd : " + virtual_lcd)
         print("display_mode: " + self.display_mode)
-        print("-------------------------------")
-
+        print('')
+        print("----------------------------------------------------------------------------")
+        print("display_mode: cpuonly cpuram cpudisk cpucore cputemp cpusmooth cpubars cpudu" )
+        print("* cpusmooth with -t TIME_ZONE allows second time zone in line 2")
+        print("  ie: sudo python3 lcd_cpu_2004.py -v no -t Europe/Paris -d cpusmooth")
+        print("* cpudu with -m MOUNT_PATH allows to display disk usage for mounted media")
+        print("  ie: sudo python3 lcd_cpu_2004.py -v no -m /media/usb0 -d cpudu")
+        print("----------------------------------------------------------------------------")
 
 
         if "Windows" in platform.platform() or virtual_lcd == "yes":
