@@ -71,8 +71,8 @@ class LCD20CPU:
         parser = argparse.ArgumentParser(description = description)
         parser.add_argument("-l","--lcd", type=lambda x: int(x, 0), default=0x3f, help = lcd_help)
         parser.add_argument("-i","--i2c_port", type=int, default=1, help = i2c_help)
-        parser.add_argument("-v","--virtual_lcd", type=str, default="yes", help = virtual_lcd_help)
-        parser.add_argument("-d","--display_mode", type=str, default="cpuonly", help = display_mode_help)
+        parser.add_argument("-v","--virtual_lcd", type=str, default="no", help = virtual_lcd_help)
+        parser.add_argument("-d","--display_mode", type=str, default="cpusmooth", help = display_mode_help)
         parser.add_argument("-t","--time_zone_2", type=str, default="Europe/Paris", help = time_zone_2_help)
         parser.add_argument("-m","--mount_path", type=str, default="", help = mount_path_help)
         
@@ -505,6 +505,7 @@ class LCD20CPU:
             else:
                 self.cpu_smooth()
                 sleep(.8)
+
 
 if __name__ == "__main__":
         

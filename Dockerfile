@@ -23,21 +23,25 @@
 # LMS_DISPLAY_MODE=cpu
 
 
-FROM python:3.11.0-slim-bullseye
+FROM python:3.11.0-alpine
 
 LABEL maintainer="renaudrenaud"
 
-RUN apt-get update -yq \ 
-&& apt-get install -y --no-install-recommends apt-utils \
-&& apt install -yq git \
-&& apt install -yq python3 \
-&& apt install -yq python3-pip
-
-WORKDIR /home
-RUN git clone https://github.com/renaudrenaud/opi5_lcd_monitor.git
+COPY requirements.txt /home/opi5_lcd_monitor/
+COPY i2c_lib.py /home/opi5_lcd_monitor/
+COPY lcd_cpu_2004.py /home/opi5_lcd_monitor/
+COPY lcddriver.py /home/opi5_lcd_monitor/
+COPY no_lcddriver.py /home/opi5_lcd_monitor/
 
 WORKDIR /home/opi5_lcd_monitor
 
-RUN python3 -m pip install -r requirements.txt
+RUN apk update \
+    && apk add --no-cache git \
+                          python3 \
+                          python3-dev \
+                          build-base \
+                          linux-headers \
+    && python3 -m pip install --upgrade pip \
+    && python3 -m pip install -r requirements.txt
 
 CMD ["python3","lcd_cpu_2004.py"]

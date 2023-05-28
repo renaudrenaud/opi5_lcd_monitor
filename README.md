@@ -90,20 +90,15 @@ For Disk Usage
 ![image](https://user-images.githubusercontent.com/9823965/212914621-ef2149e8-2273-4a53-8d20-f5c0f5b67146.png)
 
 
-
-
-
-
-
 ## run it as a container
 
 Install the [Container](https://hub.docker.com/repository/docker/renaudrenaud/opi5_lcd_monitor/general) with arm64 tag.
 
-**Define the ENV:**
-* LMS_VIRTUAL_LCD=no
-* LMS_DISPLAY_MODE=cpu
+**Define the ENV:** (Env Panel in Portainer)
+* `LMS_VIRTUAL_LCD=no`
+* `LMS_DISPLAY_MODE=cpu`
 
-**Map the device:**
+**Map the device:** (Runtime & Resources Panel in Portainer)
 Please use "privileged" mode to gain access to the device.
 
 For the OPi5:
@@ -123,6 +118,34 @@ For the OPi5:
 
 Project is really at the begining. I want to:
 * fix the cpudisk function
+
+## Debug with Visual Studio Code 
+
+At the moment the i2c device is not available without any sudo and VSCode does not like sudo, the way to debug is to use the lcd virtual driver.
+
+One way is to use the launch.json file adding the env var **"LMS_VIRTUAL_LCD":"yes"** to the configuration.
+
+```
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "env":{"LMS_VIRTUAL_LCD":"yes",
+                   "LMS_DISPLAY_MODE":"cpuonly",
+                   "TIME_ZONE_2":"Africa/Addis_Ababa"
+                   }
+        }
+    ]
+}
+```
+
+
 
 ## Acknoledgments
 
