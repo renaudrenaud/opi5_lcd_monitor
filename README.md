@@ -111,6 +111,11 @@ For the OPi5:
 
 ## Tested with
 
+* Orange Pi 5 Plus
+ * LMS_VIRTUAL_LCD=no
+ * LMS_DISPLAY_MODE=cpu
+ * LMS_LCD_ADDRESS=0x39
+ * `/dev/i2c-2`
 * Orange Pi 5 
   * `/dev/i2c-1`
   * `sudo python3 lcd_cpu_2004.py -v no -d cpusmooth`
