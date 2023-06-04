@@ -92,7 +92,6 @@ For Disk Usage
 
 ## run it as a container
 
-
 You can build the image locally or grab the container :
 * Install the [Container](https://hub.docker.com/repository/docker/renaudrenaud/opi5_lcd_monitor/general) with arm64 tag.
 * `docker build --no-cache -t renaudrenaud/opi5_lcd_monitor:1.0.0 .` or the line below if build stage get stuck on `fetch bla bla bla`
@@ -103,19 +102,19 @@ You can build the image locally or grab the container :
 * `LMS_DISPLAY_MODE=cpu`
 
 **Map the device:** (Runtime & Resources Panel in Portainer)
-Please use "privileged" mode to gain access to the device.
 
 For the OPi5:
 /dev/i2c-1:/dev/i2c-1
+
+For the OPi5 Plus:
+/dev/i2c-2:/dev/i2c-2
 
 
 ## Tested with
 
 * Orange Pi 5 Plus
- * LMS_VIRTUAL_LCD=no
- * LMS_DISPLAY_MODE=cpu
- * LMS_LCD_ADDRESS=0x39
- * `/dev/i2c-2`
+  * On Command and loggin, use this command 'python3' `'lcd_cpu_2004.py' '-i' '2' '-l' '0x39'`
+  * On runtime and ressources, add this device`/dev/i2c-2:/dev/i2c-2`
 * Orange Pi 5 
   * `/dev/i2c-1`
   * `sudo python3 lcd_cpu_2004.py -v no -d cpusmooth`
