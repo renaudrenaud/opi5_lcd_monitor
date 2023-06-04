@@ -64,7 +64,7 @@ Rs = 0b00000001  # Register select bit
 class lcd:
     # initializes objects and lcd
     def __init__(
-        self, address: int = 0x3F, columns: int = 16, lines: int = 2, i2c_port: int = 1
+        self, address: hex = 0x3F, columns: int = 16, lines: int = 2, i2c_port: int = 1
     ) -> None:
         """
         Input

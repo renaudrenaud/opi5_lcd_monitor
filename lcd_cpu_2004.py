@@ -5,6 +5,7 @@ Using I2C LCD 20*04 to show information
 Initially for the Orange Pi 5
 RC 2023-01-04
 
+2023-06-01 v0.7.0: add var env for LCD address LMS_LCD_ADDRESS 
 2023-02-08 v0.6.1: more info printed when launching
 2023-01-29 v0.6.0: time_zone_2 added to print local time and time_zone_2
 2023-01-17 v0.5.0: "cpubars" and "cpudu" for disk usage added
@@ -59,8 +60,8 @@ class LCD20CPU:
     """
     def __init__(self): 
         
-        self.__version__ = "v0.6.0"
-        description = "LCD20CPU Monitor you Pi with a 20x4 LCD"
+        self.__version__ = "v0.7.0"
+        description = "LCD CPU Monitor you Pi with a 20x4 LCD"
         lcd_help = "LCD address something like 0x3f"
         i2c_help = "i2cdetect port, 0 or 1, 0 for Orange Pi Zero, 1 for Rasp > V2 or OPi5"
         virtual_lcd_help = "yes or no, yes means no LCD, just print on screen"
@@ -82,6 +83,8 @@ class LCD20CPU:
             print("Error: " + str(e))
             sys.exit(1)
 
+        if os.getenv('LMS_LCD_ADDRESS') is not None:
+            args.lcd = int(os.environ['LMS_LCD_ADDRESS'], 16)
         if os.getenv('LMS_LCD') is not None:
             args.player_name = os.environ['LMS_LCD']
         if os.getenv('LMS_I2C_PORT') is not None:
@@ -117,7 +120,6 @@ class LCD20CPU:
         print("* cpudu with -m MOUNT_PATH allows to display disk usage for mounted media")
         print("  ie: sudo python3 lcd_cpu_2004.py -v no -m /media/usb0 -d cpudu")
         print("----------------------------------------------------------------------------")
-
 
         if "Windows" in platform.platform() or virtual_lcd == "yes":
             import no_lcddriver
@@ -468,7 +470,7 @@ class LCD20CPU:
             tz2 = pytz.timezone(self.time_zone_2)
             nowtz2 = datetime.now(tz2)
             self.lcd.lcd_display_string(today.strftime("Local %H:%M:%S") + "   " + str(round(self.tmp)) + chr(223), 1)
-            self.lcd.lcd_display_string(nowtz2.strftime(self.time_zone_2.split("/")[1][:5] + " %H:%M:%S") + " " + str(self.pct)+ "%", 2)
+            self.lcd.lcd_display_string(nowtz2.strftime(self.time_zone_2.split("/")[1][:5] + " %H:%M:%S") + "  " + str(self.pct)+ "%", 2)
         else:
             self.lcd.lcd_display_string(today.strftime("Clock %d/%m/%Y") + " " + str(self.pct)+ "%", 1)
             self.lcd.lcd_display_string(today.strftime("Time  %H:%M:%S") + "   " + str(round(self.tmp)) + chr(223), 2)
