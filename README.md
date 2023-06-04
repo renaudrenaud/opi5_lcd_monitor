@@ -92,7 +92,11 @@ For Disk Usage
 
 ## run it as a container
 
-Install the [Container](https://hub.docker.com/repository/docker/renaudrenaud/opi5_lcd_monitor/general) with arm64 tag.
+
+You can build the image locally or grab the container :
+* Install the [Container](https://hub.docker.com/repository/docker/renaudrenaud/opi5_lcd_monitor/general) with arm64 tag.
+* `docker build --no-cache -t renaudrenaud/opi5_lcd_monitor:1.0.0 .` or the line below if build stage get stuck on `fetch bla bla bla`
+* `docker build --network host --no-cache -t renaudrenaud/opi5_lcd_monitor:1.0.0 .`
 
 **Define the ENV:** (Env Panel in Portainer)
 * `LMS_VIRTUAL_LCD=no`
