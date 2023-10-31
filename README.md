@@ -37,12 +37,46 @@ The script in python is just some glue between components.
 
 The real big thing is [psutils](https://pypi.org/project/psutil/). This lib allows to grab all the information we want from the computer (cpu, ram, disks...)
 
+-----
+
+# Install and run
 
 ## Install
 
-grab the project from github
+grab the project from github:
+
 `git clone https://github.com/renaudrenaud/opi5_lcd_monitor.git`
 
+## Run It With Docker
+
+* Go to the folder
+* Build the image
+* Run it
+
+`cd opi_5_lcd_monitor`
+
+`sudo docker build -t opi5_lcd_monitor:07 .`
+
+`docker run -d \
+--name lcd_monitor_from_cli \
+--restart always \
+-e LMS_VIRTUAL_LCD=no \
+-e LMS_DISPLAY_MODE=cpusmooth \
+-e TZ=Asia/Shanghai \
+-e TIME_ZONE_2=Europe/Paris \
+--device /dev/i2c-3:/dev/i2c-3 \
+opi5_lcd_monitor:07 \
+python3 lcd_cpu_2004.py -i 3`
+
+*Notes*
+-i parameter depends on your card. It is 1 by default and work with the Orange Pi 5, the Orange Pi Zero 2 and Zero 3 needs 3. 
+You need to run `sudo i2cdetect -y X` (X=1 or 2 or 3) and see the LCD to know the value :
+- this is well documented in the user manual for the Orange Pi SBC (i2c part)
+
+
+
+
+## Run It Without Docker
 go into the project folder
 `cd cd opi5_lcd_monitor`
 
@@ -51,15 +85,12 @@ install the requirements
 
 ## run it from the commande line
 
-### On your screen
-
 On the cli, use the following command:
 
 `sudo python3 lcd_cpu.py`
 
 ![image](https://user-images.githubusercontent.com/9823965/210695728-c4d35d51-a839-4c1a-958c-5d9a2ef66a43.png)
 
-### On the LCD
 
 At this moment there is print on your screen. To use the LCD, we want to deactivate the --virtual driver**:
 
